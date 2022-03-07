@@ -45,5 +45,5 @@ int main()
   //   cout << b[i] << endl;
   // }
 
-  execvp("ls", b.data());
+  execvp(b.data()[0], b.data());
 }
