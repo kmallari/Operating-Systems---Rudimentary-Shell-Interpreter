@@ -4,23 +4,18 @@
 #include <sys/wait.h> 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 using namespace std;
 
-void command_parse(string args, string &parseCommand, vector<string> &parseParam)
-{
-  stringstream sstream(args);
-  string temp;
-
-  vector<string> out;
-  
-  while (getline(sstream, temp, ' ')) 
-  {
-    parseParam.push_back(temp);
+vector<string> split(string str, char delimiter) {
+  vector<string> internal;
+  stringstream ss(str); // Turn the string into a stream.
+  string tok;
+  while(getline(ss, tok, delimiter)) {
+    internal.push_back(tok);
   }
-
-  parseCommand = parseParam[0];
-  parseParam.erase(parseParam.begin());
+  return internal;
 }
 
 
@@ -32,20 +27,13 @@ int main()
   int should_run = 1; /* flag to determine when to exit program */
   while (should_run) {
       cout << "osh>";
-
       getline(cin, args);
 
-      command_parse(args, command, params);
+      params = split(args, ' ');
+      command = params[0];
+      params.erase(params.begin());
 
-      cout << "INPUT: " << command << "   ";
       
-      for (int i = 0; i<params.size(); i++)
-      {
-          cout << params[i];
-      }
-
-      cout <<endl;
-
 
     /**
     * After reading user input, the steps are:
