@@ -1,45 +1,115 @@
-// Lui Agustin
-// 20220302
-// initial code from
-// (book ) Abraham Silberschatz, Peter Galvin and Greg Gagne:
-//    Operating System Concepts, 10th ed, Wiley, 2018.
 #include <sys/types.h>
-#include <sys/wait.h> //https://www.geeksforgeeks.org/wait-system-call-c/
-//#include <stdio.h>
+#include <sys/wait.h>
 #include <unistd.h>
+
 #include <iostream>
+
+// ADDITIONAL LIBRARIES NEEDED
+#include <stdio.h>
 #include <string.h>
 #include <sstream>
+#include <string>
 #include <vector>
 using namespace std;
-int main()
+
+// split character array using delimiter
+vector<char *> split(string str, char delimiter)
 {
-  string s;
-  pid_t pid;
-  /* fork a child process */
-  cout << "~\033[1;31mFelipe\033[0m\033[1;32mLuke\033[0m\033[1;33mKevin\033[0m\n$ ";
-  getline (cin, s);
-  pid = fork();
-  cout << "Press Enter:";
-  getline (cin, s);
-  cout << s << endl;
-  if (pid < 0)
-  { /* error occurred */
-    cerr << "Fork Failed";
-    return 1;
+  vector<string> internal;
+  stringstream ss(str);  // Turn the string into a stream.
+  string tok;
+
+  while (getline(ss, tok, delimiter)) {
+    internal.push_back(tok);
   }
-   else if (pid == 0)
-  { /* child process */
-    execlp("/bin/ls","ls",NULL);
-    cout << "child s: " << s << endl;
+
+  // translate vector of strings to vector of characters
+  vector<char *> chars;
+
+  for (int i = 0; i < internal.size(); i++)
+  {
+    char *c = new char[internal[i].length() + 1];
+    strcpy(c, internal[i].c_str());
+    chars.push_back(c);
+  }
+
+  return chars;
+}
+
+void execCommand(vector<char *> command, vector<char *> fileNMs, bool redirect)
+{
+  pid_t pid = fork();
+
+
+  if(redirect)
+  {
+    
   }
   else
-  { /* parent process */
-    /* parent will wait for the child to complete */
-    cout << "parent pid: " << pid << endl;
-    cout << "parent s: " << s << endl;
-    wait(NULL);
-    cout << "Child Complete\n";
+  {
+    execvp(command.data()[0], command.data());
   }
-  return 0;
+}
+
+void checkInput(string currentCommand, vector<char *> &previousCommand, vector<char *> &previousFNMs)
+{
+  vector<char *> redirectInCommand = split(currentCommand, '<');
+  vector<char *> redirectOutCommand = split(currentCommand, '<');
+
+  if (currentCommand.data()[0] == '!!')
+  {
+    if(previousCommand.data()[0] != NULL)
+    {
+      if(previousFNMs.data()[0] != NULL)
+      {
+        execCommand(previousCommand, previousFNMs, true);
+      }
+      else
+      {
+        execCommand(previousCommand, NULL, false);
+      }
+    }
+    else
+    {
+      cout << "No commands in history." <<endl;
+    }
+  }
+  else if (redirectInCommand.data()[1] != NULL)
+  {
+    //vector<char *> fileNMs = split(redirectInCommand.data()[1], ) possible check for multiple input files
+    execCommand(redirectInCommand.data()[0],redirectInCommand.data()[1], true)
+    previousFNMs[0] = redirectInCommand.data()[1];
+    previousCommand[0] = redirectInCommand.data()[0];
+  }
+  else if (redirectOutCommand.data()[1] != NULL)
+  {
+    //vector<char *> fileNMs = split(redirectInCommand.data()[1], ) possible check for multiple input files
+    execCommand(redirectOutCommand.data()[0],redirectOutCommand.data()[1], true)
+    previousFNMs[0] = redirectOutCommand.data()[1];
+    previousCommand[0] = redirectOutCommand.data()[0];
+  }
+  else
+  {
+    vector<char *> command = split(currentCommand, ' '); 
+    execCommand(command, NULL, false);
+    previousCommand = command;
+    previousFNMs[0] = NULL;
+  }
+}
+
+int main()
+{
+  string input;
+
+  //vector<char *> args;
+  vector<char *> prevArgs, prevFNMs;
+  bool should_run = 1; //determine when to exit program
+
+  while(should_run)
+  {
+    cout << "osh>";
+    getline(cin, input);
+
+    checkInput(input, prevArgs, prevFNMs);
+  }
 }
