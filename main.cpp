@@ -3,7 +3,7 @@
 #include <sys/types.h>
 #include <sys/wait.h> 
 #include <iostream>
-#include <string>
+#include <string.h>
 #include <sstream>
 #include <vector>
 using namespace std;
@@ -31,9 +31,19 @@ int main()
 
       params = split(args, ' ');
       command = params[0];
-      params.erase(params.begin());
 
+      char command_char[command.size() + 1];
+      strcpy(command_char, command.c_str());
       
+      char* argument_list[params.size()+1];
+      for (int i = 0; i<params.size(); i++)
+      {
+        strcpy(params[i], argument_list[i]);
+      }
+
+      argument_list[params.size()] = NULL;
+
+      execvp(command_char, argument_list);
 
     /**
     * After reading user input, the steps are:
