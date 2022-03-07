@@ -1,56 +1,45 @@
-#include <stdio.h>
-#include <unistd.h>
+// Lui Agustin
+// 20220302
+// initial code from
+// (book ) Abraham Silberschatz, Peter Galvin and Greg Gagne:
+//    Operating System Concepts, 10th ed, Wiley, 2018.
 #include <sys/types.h>
-#include <sys/wait.h> 
+#include <sys/wait.h> //https://www.geeksforgeeks.org/wait-system-call-c/
+//#include <stdio.h>
+#include <unistd.h>
 #include <iostream>
 #include <string.h>
 #include <sstream>
 #include <vector>
 using namespace std;
-
-vector<string> split(string str, char delimiter) {
-  vector<string> internal;
-  stringstream ss(str); // Turn the string into a stream.
-  string tok;
-  while(getline(ss, tok, delimiter)) {
-    internal.push_back(tok);
-  }
-  return internal;
-}
-
-
 int main()
 {
-  string args; /* command line arguments */
-  string command; //command
-  vector<string> params;
-  int should_run = 1; /* flag to determine when to exit program */
-  while (should_run) {
-      cout << "osh>";
-      getline(cin, args);
-
-      params = split(args, ' ');
-      command = params[0];
-
-      char command_char[command.size() + 1];
-      strcpy(command_char, command.c_str());
-      
-      char* argument_list[params.size()+1];
-      for (int i = 0; i<params.size(); i++)
-      {
-        strcpy(params[i], argument_list[i]);
-      }
-
-      argument_list[params.size()] = NULL;
-
-      execvp(command_char, argument_list);
-
-    /**
-    * After reading user input, the steps are:
-    * (1) fork a child process using fork()
-    * (2) the child process will invoke execvp()
-    * (3) parent will invoke wait() unless command included &
-    */
-    }
+  string s;
+  pid_t pid;
+  /* fork a child process */
+  cout << "~\033[1;31mFelipe\033[0m\033[1;32mLuke\033[0m\033[1;33mKevin\033[0m\n$ ";
+  getline (cin, s);
+  pid = fork();
+  cout << "Press Enter:";
+  getline (cin, s);
+  cout << s << endl;
+  if (pid < 0)
+  { /* error occurred */
+    cerr << "Fork Failed";
+    return 1;
+  }
+   else if (pid == 0)
+  { /* child process */
+    execlp("/bin/ls","ls",NULL);
+    cout << "child s: " << s << endl;
+  }
+  else
+  { /* parent process */
+    /* parent will wait for the child to complete */
+    cout << "parent pid: " << pid << endl;
+    cout << "parent s: " << s << endl;
+    wait(NULL);
+    cout << "Child Complete\n";
+  }
   return 0;
 }
