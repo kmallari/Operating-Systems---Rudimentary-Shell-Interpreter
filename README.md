@@ -1,5 +1,5 @@
 
-# Operating-Systems---Rudimentary-Shell-Interpreter
+# Operating Systems Project - Rudimentary Shell Interpreter
 ## General Specifications
 Design a C/C++ program to serve as a shell interface that accepts user commands and then executes each command in a separate  process. Your implementation will  support  input and output redirection, as well as pipes as a form of interprocess communication (IPC) between a pair of commands.  Implement  this  project   using  system   calls   such   as  the   UNIX  `fork()`,  `exec()`, `wait()`,  `dup2()`, and  `pipe()`  on Linux, UNIX, or macOS  systems or equivalent system calls on other operating systems. 
 
