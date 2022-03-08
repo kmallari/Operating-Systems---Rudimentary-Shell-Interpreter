@@ -36,6 +36,23 @@ vector<char *> split(string str, char delimiter)
   return chars;
 }
 
+void execute(vector<char *> b)
+{
+  char *c = new char[b.size() + 1];
+  strcpy(c, "/usr/bin/");
+  strcat(c, b[0]);
+  b.data()[0] = c;
+  
+  cout << c <<endl;
+  cout << b.data()[0] <<endl;
+  cout << b.data()[1] <<endl;
+
+  if(execvp(b.data()[0], b.data())==-1)
+  {
+    cout << "ERROR" <<endl;
+  }
+}
+
 int main()
 {
   string a = "ls -l";
@@ -44,6 +61,7 @@ int main()
   // {
   //   cout << b[i] << endl;
   // }
-
+  cout << b.data()[0] <<endl;
+  execute(b);
   execvp(b.data()[0], b.data());
 }

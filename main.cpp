@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fcntl.h>
 using namespace std;
 
 // split character array using delimiter
@@ -36,25 +37,50 @@ vector<char *> split(string str, char delimiter)
   return chars;
 }
 
-void execCommand(vector<char *> command, vector<char *> fileNMs, bool redirect)
+void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, bool redirect)
 {
   pid_t pid = fork();
 
+/*   char *c = new char[command.length() + 1];
+  strcat(c, " /bin/");
+  strcat(c, command.c_str());
+  command.data()[0] = c.data(); */
 
-  if(redirect)
+  if(pid == 0)
   {
-    
+    if (redirect) //currently only for output redirection
+    {
+      int fileDesc = open(fileNMs.data()[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
+      dup2(fileDesc,STDOUT_FILENO);
+      if(execvp(command[0], data) == -1)
+      {
+        cout << "SOMETHING WENT WRONG";
+        cout << "REDIRECT ERROR";
+        close(fileDesc);
+        exit(10);
+      }
+      close(fileDesc);
+    }
+    else 
+    {
+      if(execvp(command[0], data) == -1)
+      {
+        cout << "SOMETHING WENT WRONG";
+        exit(10);
+      }
+    }
   }
   else
   {
-    execvp(command.data()[0], command.data());
+    wait(NULL);
   }
 }
 
 void checkInput(string currentCommand, vector<char *> &previousCommand, vector<char *> &previousFNMs)
 {
   vector<char *> redirectInCommand = split(currentCommand, '<');
-  vector<char *> redirectOutCommand = split(currentCommand, '<');
+  vector<char *> redirectOutCommand = split(currentCommand, '>');
+  vector<char *> nullVec;
 
   if (currentCommand.data()[0] == '!!')
   {
@@ -62,11 +88,11 @@ void checkInput(string currentCommand, vector<char *> &previousCommand, vector<c
     {
       if(previousFNMs.data()[0] != NULL)
       {
-        execCommand(previousCommand, previousFNMs, true);
+        execCommand(previousCommand, previousCommand.data(), previousFNMs, true);
       }
       else
       {
-        execCommand(previousCommand, NULL, false);
+        execCommand(previousCommand, previousCommand.data(), nullVec, false);
       }
     }
     else
@@ -74,24 +100,27 @@ void checkInput(string currentCommand, vector<char *> &previousCommand, vector<c
       cout << "No commands in history." <<endl;
     }
   }
-  else if (redirectInCommand.data()[1] != NULL)
+  else if (redirectInCommand[1] != NULL)
   {
     //vector<char *> fileNMs = split(redirectInCommand.data()[1], ) possible check for multiple input files
-    execCommand(redirectInCommand.data()[0],redirectInCommand.data()[1], true)
+    cout << "REDIRECT IN";
+    execCommand(redirectInCommand, redirectInCommand.data(), redirectInCommand, true);
     previousFNMs[0] = redirectInCommand.data()[1];
     previousCommand[0] = redirectInCommand.data()[0];
   }
-  else if (redirectOutCommand.data()[1] != NULL)
+  else if (redirectOutCommand[1] != NULL)
   {
     //vector<char *> fileNMs = split(redirectInCommand.data()[1], ) possible check for multiple input files
-    execCommand(redirectOutCommand.data()[0],redirectOutCommand.data()[1], true)
+    cout << "REDIRECT OUT";
+    execCommand(redirectOutCommand, redirectOutCommand.data(), redirectOutCommand, true);
     previousFNMs[0] = redirectOutCommand.data()[1];
     previousCommand[0] = redirectOutCommand.data()[0];
   }
   else
   {
-    vector<char *> command = split(currentCommand, ' '); 
-    execCommand(command, NULL, false);
+    cout << "WENT TO ELSE";
+    vector<char *> command = split(currentCommand, ' ');
+    execCommand(command, command.data(), nullVec, false);
     previousCommand = command;
     previousFNMs[0] = NULL;
   }
