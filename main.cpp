@@ -5,6 +5,7 @@
 #include <iostream>
 
 // ADDITIONAL LIBRARIES NEEDED
+#include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
 #include <sstream>
@@ -52,14 +53,14 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, b
     {
       int fileDesc = open(fileNMs.data()[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
       dup2(fileDesc,STDOUT_FILENO);
+      close(fileDesc);
+      data[1] = NULL;
       if(execvp(command[0], data) == -1)
       {
         cout << "SOMETHING WENT WRONG";
         cout << "REDIRECT ERROR";
-        close(fileDesc);
         exit(10);
       }
-      close(fileDesc);
     }
     else 
     {
@@ -76,60 +77,65 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, b
   }
 }
 
-void checkInput(string currentCommand, vector<char *> &previousCommand, vector<char *> &previousFNMs)
+// void checkInput(string currentCommand, vector<char *> &previousCommand, vector<char *> &previousFNMs)
+void checkInput(string currentCommand)
 {
   vector<char *> redirectInCommand = split(currentCommand, '<');
   vector<char *> redirectOutCommand = split(currentCommand, '>');
   vector<char *> nullVec;
 
-  if (currentCommand.data()[0] == '!!')
-  {
-    if(previousCommand.data()[0] != NULL)
-    {
-      if(previousFNMs.data()[0] != NULL)
-      {
-        execCommand(previousCommand, previousCommand.data(), previousFNMs, true);
-      }
-      else
-      {
-        execCommand(previousCommand, previousCommand.data(), nullVec, false);
-      }
-    }
-    else
-    {
-      cout << "No commands in history." <<endl;
-    }
-  }
-  else if (redirectInCommand[1] != NULL)
+  // if (currentCommand.data()[0] == '!!')
+  // {
+  //   if(previousCommand.data()[0] != NULL)
+  //   {
+  //     if(previousFNMs.data()[0] != NULL)
+  //     {
+  //       execCommand(previousCommand, previousCommand.data(), previousFNMs, true);
+  //     }
+  //     else
+  //     {
+  //       execCommand(previousCommand, previousCommand.data(), nullVec, false);
+  //     }
+  //   }
+  //   else
+  //   {
+  //     cout << "No commands in history." <<endl;
+  //   }
+  // }
+  // else 
+  if (redirectInCommand[1] != NULL)
   {
     //vector<char *> fileNMs = split(redirectInCommand.data()[1], ) possible check for multiple input files
     cout << "REDIRECT IN";
-    execCommand(redirectInCommand, redirectInCommand.data(), redirectInCommand, true);
-    previousFNMs[0] = redirectInCommand.data()[1];
-    previousCommand[0] = redirectInCommand.data()[0];
+    cout << redirectInCommand.data()[1] <<endl;
+    // execCommand(redirectInCommand, redirectInCommand.data(), redirectInCommand, true);
+    // previousFNMs[0] = redirectInCommand.data()[1];
+    // previousCommand[0] = redirectInCommand.data()[0];
   }
   else if (redirectOutCommand[1] != NULL)
   {
     //vector<char *> fileNMs = split(redirectInCommand.data()[1], ) possible check for multiple input files
     cout << "REDIRECT OUT";
-    execCommand(redirectOutCommand, redirectOutCommand.data(), redirectOutCommand, true);
-    previousFNMs[0] = redirectOutCommand.data()[1];
-    previousCommand[0] = redirectOutCommand.data()[0];
+    cout << redirectOutCommand.data()[1] <<endl;
+    // execCommand(redirectOutCommand, redirectOutCommand.data(), redirectOutCommand, true);
+    // previousFNMs[0] = redirectOutCommand.data()[1];
+    // previousCommand[0] = redirectOutCommand.data()[0];
   }
   else
   {
     cout << "WENT TO ELSE";
     vector<char *> command = split(currentCommand, ' ');
-    execCommand(command, command.data(), nullVec, false);
-    previousCommand = command;
-    previousFNMs[0] = NULL;
+    // execCommand(command, command.data(), nullVec, false);
+    // previousCommand = command;
+    // previousFNMs[0] = NULL;
   }
+  // redirectInCommand.clear();
+  // redirectOutCommand.clear();
 }
 
 int main()
 {
   string input;
-
   //vector<char *> args;
   vector<char *> prevArgs, prevFNMs;
   bool should_run = 1; //determine when to exit program
@@ -139,6 +145,7 @@ int main()
     cout << "osh>";
     getline(cin, input);
 
-    checkInput(input, prevArgs, prevFNMs);
+    // checkInput(input, prevArgs, prevFNMs);
+    checkInput(input);
   }
 }

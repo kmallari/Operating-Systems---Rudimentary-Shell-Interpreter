@@ -1,1 +1,9 @@
-REDIRECT OUTSOMETHING WENT WRONGREDIRECT ERROR
+ test.txt
+README.md
+a.exe
+a.exe.stackdump
+main.cpp
+main.exe
+main.exe.stackdump
+out.txt
+test.cpp
