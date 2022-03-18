@@ -5,6 +5,7 @@
 #include <iostream>
 
 // ADDITIONAL LIBRARIES NEEDED
+
 #include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
@@ -223,35 +224,6 @@ void checkInput(string currentCommand)
   }
 } 
 
-/*   if (redirectInCommand[1] != NULL)
-  {
-    //vector<char *> fileNMs = split(redirectInCommand.data()[1], ) possible check for multiple input files
-    cout << "REDIRECT IN";
-    cout << redirectInCommand.data()[1] <<endl;
-    // execCommand(redirectInCommand, redirectInCommand.data(), redirectInCommand, true);
-    // previousFNMs[0] = redirectInCommand.data()[1];
-    // previousCommand[0] = redirectInCommand.data()[0];
-  }
-  else if (redirectOutCommand[1] != NULL)
-  {
-    //vector<char *> fileNMs = split(redirectInCommand.data()[1], ) possible check for multiple input files
-    cout << "REDIRECT OUT";
-    cout << redirectOutCommand.data()[1] <<endl;
-    // execCommand(redirectOutCommand, redirectOutCommand.data(), redirectOutCommand, true);
-    // previousFNMs[0] = redirectOutCommand.data()[1];
-    // previousCommand[0] = redirectOutCommand.data()[0];
-  }
-  else
-  {
-    cout << "WENT TO ELSE";
-    vector<char *> command = split(currentCommand, ' ');
-    // execCommand(command, command.data(), nullVec, false);
-    // previousCommand = command;
-    // previousFNMs[0] = NULL;
-  }
-  // redirectInCommand.clear();
-  // redirectOutCommand.clear(); */
-
 int main()
 {
   string input;
@@ -261,7 +233,8 @@ int main()
 
   while(should_run)
   {
-    cout << "osh>";
+    cout << "~\033[1;31mFelipe\033[0m\033[1;32mLuke\033[0m\033[1;"
+            "33mKevin\033[0m\n$ ";
     getline(cin, input);
 
     if (input == "exit")
