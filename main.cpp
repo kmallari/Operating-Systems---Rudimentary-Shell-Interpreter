@@ -72,7 +72,7 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
         if(execvp(commandInput.data()[0], commandInput.data()) == -1)
         {
           cout << "SOMETHING WENT WRONG ";
-          cout << "REDIRECT ERROR";
+          cout << "REDIRECT ERROR"<<endl;
           exit(10);
         }
       }
@@ -81,7 +81,7 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
         if(execvp(command[0], data) == -1)
         {
           cout << "SOMETHING WENT WRONG ";
-          cout << "REDIRECT ERROR";
+          cout << "REDIRECT ERROR"<<endl;
           exit(10);
         }
       }
@@ -98,7 +98,7 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
         if(execvp(commandInput.data()[0], commandInput.data()) == -1)
         {
           cout << "SOMETHING WENT WRONG ";
-          cout << "REDIRECT ERROR";
+          cout << "REDIRECT ERROR"<<endl;
           exit(10);
         }
       }
@@ -107,7 +107,7 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
         if(execvp(command[0], data) == -1)
         {
           cout << "SOMETHING WENT WRONG ";
-          cout << "REDIRECT ERROR";
+          cout << "REDIRECT ERROR"<<endl;
           exit(10);
         }
       }
@@ -117,13 +117,12 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
       int fd[2];
       char *secondCommand[2];
       secondCommand[0] = command[1];
-      secondCommand[1] = NULL;
       data[1] = NULL;
       
       if(pipe(fd) == -1)
       {
         cout << "SOMETHING WENT WRONG ";
-        cout << "PIPE ERROR";
+        cout << "PIPE ERROR"<<endl;
         exit(10);
       }
 
@@ -133,10 +132,23 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
         close(fd[1]);
         dup2(fd[0], STDIN_FILENO);
         close(fd[0]);
-        if (execvp(secondCommand[0], secondCommand) == -1)
+        if (dash!=string::npos)
         {
-          cout << "SOMETHING WENT WRONG INPUT PIPE";
-          exit(10);
+          vector<char *> commandInput = split(charToString(secondCommand[0]), ' ');
+          if(execvp(commandInput.data()[0], commandInput.data()) == -1)
+          {
+            cout << "SOMETHING WENT WRONG OUTPUT PIPE" <<endl;
+            exit(10);
+          }
+        }
+        else
+        {
+          secondCommand[1] = NULL;
+          if (execvp(secondCommand[0], secondCommand) == -1)
+          {
+            cout << "SOMETHING WENT WRONG OUTPUT PIPE" <<endl;
+            exit(10);
+          }
         }
       } 
       else if (pidPipe == 0) 
@@ -149,8 +161,7 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
           vector<char *> commandInput = split(charToString(command[0]), ' ');
           if(execvp(commandInput.data()[0], commandInput.data()) == -1)
           {
-            cout << "SOMETHING WENT WRONG ";
-            cout << "REDIRECT ERROR";
+            cout << "SOMETHING WENT WRONG INPUT PIPE" <<endl;
             exit(10);
           }
         }
@@ -158,8 +169,7 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
         {
           if(execvp(command[0], data) == -1)
           {
-            cout << "SOMETHING WENT WRONG ";
-            cout << "REDIRECT ERROR";
+            cout << "SOMETHING WENT WRONG INPUT PIPE" <<endl;
             exit(10);
           }
         }
