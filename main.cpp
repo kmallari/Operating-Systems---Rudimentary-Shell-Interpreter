@@ -38,7 +38,7 @@ vector<char *> split(string str, char delimiter)
   return chars;
 }
 
-void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, bool redirect)
+void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, int redirect)
 {
   pid_t pid = fork();
 
@@ -49,7 +49,7 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, b
 
   if(pid == 0)
   {
-    if (redirect) //currently only for output redirection
+    if (redirect == 1) //currently only for output redirection
     {
       int fileDesc = open(fileNMs.data()[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
       dup2(fileDesc,STDOUT_FILENO);
@@ -61,6 +61,10 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, b
         cout << "REDIRECT ERROR";
         exit(10);
       }
+    }
+    else if (redirect == 2)
+    {
+      
     }
     else 
     {
@@ -80,30 +84,33 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, b
 // void checkInput(string currentCommand, vector<char *> &previousCommand, vector<char *> &previousFNMs)
 void checkInput(string currentCommand)
 {
-  vector<char *> redirectInCommand = split(currentCommand, '<');
-  vector<char *> redirectOutCommand = split(currentCommand, '>');
-  vector<char *> nullVec;
+  size_t redirin = currentCommand.find('<');
+  size_t redirout = currentCommand.find('>');
+  vector<char *> nullVec, redirectInCommand, redirectOutCommand;
+  
+  if(redirin!=string::npos)
+  {
+    vector<char *> redirectInCommand = split(currentCommand, '<');
+    cout << redirectInCommand.data()[1] <<endl;
+    execCommand(redirectInCommand, redirectInCommand.data(), redirectInCommand, 2);
+    redirectInCommand.clear();
+  }
+  else if (redirout!=string::npos)
+  {
+    vector<char *> redirectOutCommand = split(currentCommand, '>');
+    cout << redirectOutCommand.data()[1] <<endl;
+    execCommand(redirectOutCommand, redirectOutCommand.data(), redirectOutCommand, 1);
+    redirectOutCommand.clear();
+  }
+  else
+  {
+    vector<char *> command = split(currentCommand, ' ');
+    execCommand(command, command.data(), nullVec, false);
+    command.clear();
+  }
+} 
 
-  // if (currentCommand.data()[0] == '!!')
-  // {
-  //   if(previousCommand.data()[0] != NULL)
-  //   {
-  //     if(previousFNMs.data()[0] != NULL)
-  //     {
-  //       execCommand(previousCommand, previousCommand.data(), previousFNMs, true);
-  //     }
-  //     else
-  //     {
-  //       execCommand(previousCommand, previousCommand.data(), nullVec, false);
-  //     }
-  //   }
-  //   else
-  //   {
-  //     cout << "No commands in history." <<endl;
-  //   }
-  // }
-  // else 
-  if (redirectInCommand[1] != NULL)
+/*   if (redirectInCommand[1] != NULL)
   {
     //vector<char *> fileNMs = split(redirectInCommand.data()[1], ) possible check for multiple input files
     cout << "REDIRECT IN";
@@ -130,8 +137,7 @@ void checkInput(string currentCommand)
     // previousFNMs[0] = NULL;
   }
   // redirectInCommand.clear();
-  // redirectOutCommand.clear();
-}
+  // redirectOutCommand.clear(); */
 
 int main()
 {
@@ -147,5 +153,6 @@ int main()
 
     // checkInput(input, prevArgs, prevFNMs);
     checkInput(input);
+    input.clear();
   }
 }
