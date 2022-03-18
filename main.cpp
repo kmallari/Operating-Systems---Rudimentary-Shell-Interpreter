@@ -5,24 +5,30 @@
 #include <iostream>
 
 // ADDITIONAL LIBRARIES NEEDED
-#include <fcntl.h>
-#include <sstream>
+
+#include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 #include <string>
-#include <sys/stat.h>
 #include <vector>
+#include <fcntl.h>
 using namespace std;
+
+string charToString(char *chars)
+{
+  string s(chars);
+  return s;
+}
 
 // split character array using delimiter
 vector<char *> split(string str, char delimiter)
 {
   vector<string> internal;
-  stringstream ss(str); // Turn the string into a stream.
+  stringstream ss(str);  // Turn the string into a stream.
   string tok;
 
-  while (getline(ss, tok, delimiter))
-  {
+  while (getline(ss, tok, delimiter)) {
     internal.push_back(tok);
   }
 
@@ -39,52 +45,138 @@ vector<char *> split(string str, char delimiter)
   return chars;
 }
 
-string charToString(char *chars)
-{
-  string s(chars);
-  return s;
-}
-
-void execCommand(vector<char *> command, char **data,
-                 vector<char *> fileNMs, bool redirect)
+void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, int redirect)
 {
   pid_t pid = fork();
+  pid_t pidPipe;
 
-  /*   char *c = new char[command.length() + 1];
-    strcat(c, " /bin/");
-    strcat(c, command.c_str());
-    command.data()[0] = c.data(); */
+/*   char *c = new char[command.length() + 1];
+  strcat(c, " /bin/");
+  strcat(c, command.c_str());
+  command.data()[0] = c.data(); */
+  size_t spc = charToString(command[0]).find(' ');
 
-  vector<char *> commandInput = split(charToString(command[0]), ' ');
-
-  if (pid == 0)
+  if(pid == 0)
   {
-    if (redirect) // currently only for output redirection
+    if (redirect == 1) //currently only for output redirection
     {
-      int fileDesc = open(
-          fileNMs.data()[1], O_RDWR | O_CREAT,
-          S_IRUSR |
-              S_IWUSR); // https://man7.org/linux/man-pages/man2/open.2.html
-      dup2(fileDesc, STDOUT_FILENO);
+      int fileDesc = open(fileNMs.data()[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
+      dup2(fileDesc,STDOUT_FILENO);
       close(fileDesc);
       data[1] = NULL;
-      if (execvp(commandInput.data()[0], commandInput.data()) == -1)
+      
+      if (spc!=string::npos)
       {
-        cout << data;
-        cout << "SOMETHING WENT WRONG" << endl;
-        cout << "REDIRECT ERROR" << endl;
-        // kill(pid, SIGKILL);
+        vector<char *> commandInput = split(charToString(command[0]), ' ');
+        if(execvp(commandInput.data()[0], commandInput.data()) == -1)
+        {
+          cout << "SOMETHING WENT WRONG ";
+          cout << "REDIRECT ERROR";
+          exit(10);
+        }
+      }
+      else 
+      {
+        if(execvp(command[0], data) == -1)
+        {
+          cout << "SOMETHING WENT WRONG ";
+          cout << "REDIRECT ERROR";
+          exit(10);
+        }
+      }
+    }
+    else if (redirect == 2)
+    {
+      int fileDesc = open(fileNMs.data()[1], O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
+      dup2(fileDesc,STDIN_FILENO);
+      close(fileDesc);
+      data[1] = NULL;
+      if (spc!=string::npos)
+      {
+        vector<char *> commandInput = split(charToString(command[0]), ' ');
+        if(execvp(commandInput.data()[0], commandInput.data()) == -1)
+        {
+          cout << "SOMETHING WENT WRONG ";
+          cout << "REDIRECT ERROR";
+          exit(10);
+        }
+      }
+      else 
+      {
+        if(execvp(command[0], data) == -1)
+        {
+          cout << "SOMETHING WENT WRONG ";
+          cout << "REDIRECT ERROR";
+          exit(10);
+        }
+      }
+    }
+    else if (redirect == 3)
+    {
+      int fd[2];
+      char *secondCommand[2];
+      secondCommand[0] = command[1];
+      secondCommand[1] = NULL;
+      data[1] = NULL;
+      
+      if(pipe(fd) == -1)
+      {
+        cout << "SOMETHING WENT WRONG ";
+        cout << "PIPE ERROR";
         exit(10);
       }
+
+      pidPipe = fork();
+      if (pidPipe > 0) {
+        wait(NULL);
+        close(fd[1]);
+        dup2(fd[0], STDIN_FILENO);
+        close(fd[0]);
+        if (execvp(secondCommand[0], secondCommand) == -1)
+        {
+          cout << "SOMETHING WENT WRONG INPUT PIPE";
+          exit(10);
+        }
+      } 
+      else if (pidPipe == 0) 
+      {
+        close(fd[0]);
+        dup2(fd[1], STDOUT_FILENO);
+        close(fd[1]);
+        if (spc!=string::npos)
+        {
+          vector<char *> commandInput = split(charToString(command[0]), ' ');
+          if(execvp(commandInput.data()[0], commandInput.data()) == -1)
+          {
+            cout << "SOMETHING WENT WRONG ";
+            cout << "REDIRECT ERROR";
+            exit(10);
+          }
+        }
+        else 
+        {
+          if(execvp(command[0], data) == -1)
+          {
+            cout << "SOMETHING WENT WRONG ";
+            cout << "REDIRECT ERROR";
+            exit(10);
+          }
+        }
+        exit(10);
+      }
+      close(fd[0]);
+      close(fd[1]);
     }
     else
     {
-      if (execvp(commandInput.data()[0], data) == -1)
+      if(execvp(command[0], data) == -1)
       {
-        cout << "SOMETHING WENT WRONG" << endl;
+        cout << "SOMETHING WENT WRONG ";
         exit(10);
       }
     }
+
+    //kill(pid, SIGKILL);
   }
   else
   {
@@ -92,27 +184,34 @@ void execCommand(vector<char *> command, char **data,
   }
 }
 
+// void checkInput(string currentCommand, vector<char *> &previousCommand, vector<char *> &previousFNMs)
 void checkInput(string currentCommand)
 {
   size_t redirin = currentCommand.find('<');
   size_t redirout = currentCommand.find('>');
+  size_t pipe = currentCommand.find('|');
   vector<char *> nullVec, redirectInCommand, redirectOutCommand;
-
-  if (redirin != string::npos)
+  
+  if(redirin!=string::npos)
   {
     vector<char *> redirectInCommand = split(currentCommand, '<');
-    cout << redirectInCommand.data()[1] << endl;
-    execCommand(redirectInCommand, redirectInCommand.data(),
-                redirectInCommand, true);
+    cout << redirectInCommand.data()[1] <<endl;
+    execCommand(redirectInCommand, redirectInCommand.data(), redirectInCommand, 2);
     redirectInCommand.clear();
   }
-  else if (redirout != string::npos)
+  if (redirout!=string::npos)
   {
     vector<char *> redirectOutCommand = split(currentCommand, '>');
-    cout << redirectOutCommand.data()[1] << endl;
-    execCommand(redirectOutCommand, redirectOutCommand.data(),
-                redirectOutCommand, true);
+    cout << redirectOutCommand.data()[1] <<endl;
+    execCommand(redirectOutCommand, redirectOutCommand.data(), redirectOutCommand, 1);
     redirectOutCommand.clear();
+  }
+  if(pipe!=string::npos)
+  {
+    vector<char *> pipeCommand = split(currentCommand, '|');
+    cout << pipeCommand.data()[0] << " AND " << pipeCommand.data()[1] <<endl;
+    execCommand(pipeCommand, pipeCommand.data(), nullVec, 3);
+    pipeCommand.clear();
   }
   else
   {
@@ -120,16 +219,16 @@ void checkInput(string currentCommand)
     execCommand(command, command.data(), nullVec, false);
     command.clear();
   }
-}
+} 
 
 int main()
 {
   string input;
-  // vector<char *> args;
+  //vector<char *> args;
   vector<char *> prevArgs, prevFNMs;
-  bool should_run = 1; // determine when to exit program
+  bool should_run = 1; //determine when to exit program
 
-  while (should_run)
+  while(should_run)
   {
     cout << "~\033[1;31mFelipe\033[0m\033[1;32mLuke\033[0m\033[1;"
             "33mKevin\033[0m\n$ ";
@@ -140,8 +239,8 @@ int main()
       return 0;
     }
 
-    cout << "input: " << input << endl;
     // checkInput(input, prevArgs, prevFNMs);
     checkInput(input);
+    input.clear();
   }
 }
