@@ -1,0 +1,6 @@
+beta
+alpha
+delta
+foxtrot
+charlie
+echo

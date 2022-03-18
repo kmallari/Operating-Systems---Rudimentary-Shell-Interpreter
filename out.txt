@@ -1,9 +1,11 @@
  test.txt
-README.md
-a.exe
-a.exe.stackdump
+ENGG 126 HW 432 - Lao.pdf
+ENGG 126 HW 432 Project 1 Progress report.zip
+in.txt
 main.cpp
 main.exe
-main.exe.stackdump
 out.txt
+README.md
+reverse.exe
+reverse-main.cpp
 test.cpp
