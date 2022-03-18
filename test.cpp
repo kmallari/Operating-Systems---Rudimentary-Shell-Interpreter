@@ -57,27 +57,13 @@ void execute(vector<char *> b)
 
 int main()
 {
-  string a = "ls>testingnotepad.txt";
-  // vector<char *> b = split(a, ' ');
-  vector<char *> c = split(a, '>');
-  // for (int i = 0; i < b.size(); i++)
-  // {
-  //   cout << b[i] << endl;
-  // }
-  // cout << b.data()[0] <<endl;
-  // execute(b);
-  // execvp(b.data()[0], b.data());
-  int fileDesc = open(c.data()[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
-  dup2(fileDesc,1);
-  dup2(fileDesc,2);
-  close(fileDesc);
-  c[1] = NULL;
-  // cout << c.data()[0] <<endl;
-  // cout << c.data()[1] <<endl;
-  // cout << c.data()[2] <<endl;
-  // c[1] = NULL;
-  // cout << c.data()[0] <<endl;
-  // cout << c.data()[1] <<endl;
+  string b = "ls -l";
+  vector<char *> s = split(b,' ');
+  string a = "ls";
+  vector<char *> c = split(a,' ');
+  bool should_run = 1; //determine when to exit program
 
+  execvp(s.data()[0], s.data());
   execvp(c.data()[0], c.data());
+  execvp(s.data()[0], s.data());
 }
