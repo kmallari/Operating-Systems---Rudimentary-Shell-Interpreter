@@ -1,0 +1,17 @@
+total 564
+-rwx------+ 1 user user    766 Mar 18 16:56  output.txt
+-rwx------+ 1 user user     46 Mar  8 11:19  test.txt
+-rwxrwx---+ 1 user user  20114 Mar 14 00:01 ENGG 126 HW 432 - Lao.pdf
+-rwxrwx---+ 1 user user  17591 Mar 14 00:02 ENGG 126 HW 432 Project 1 Progress report.zip
+-rwxrwx---+ 1 user user     44 Mar 19 16:59 in.txt
+-rwxrwx---+ 1 user user   6626 Mar 19 16:04 main.cpp
+-rwxrwxr-x+ 1 user user 154354 Mar 19 16:37 main.exe
+-rwxrwx---+ 1 user user   7271 Mar 19 15:26 mainv2.cpp
+-rwxrwxr-x+ 1 user user 142828 Mar 19 15:26 mainv2.exe
+-rwx------+ 1 user user    437 Mar 19 14:24 outputping.txt
+-rwxrwx---+ 1 user user   2196 Mar 18 17:05 README.md
+-rwxrwxr-x+ 1 user user  72348 Mar 18 14:30 reverse.exe
+-rwxrwx---+ 1 user user    279 Mar 18 16:16 reverse-main.cpp
+-rwxrwx---+ 1 user user   1453 Mar 18 16:22 test.cpp
+-rwxrwxr-x+ 1 user user 130280 Mar 18 16:31 test.exe
+-rwx------+ 1 user user      0 Mar 19 17:12 testinglsoutput.txt
