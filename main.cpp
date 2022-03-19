@@ -21,6 +21,25 @@ string charToString(char *chars)
   return s;
 }
 
+char * trimWhiteSpace(char *chars)
+{
+  string temp = charToString(chars);
+  while (temp.find(' ') == 0)
+  {
+    temp.erase(0,1);
+  }
+
+  while (temp.find(' ') == temp.length()-1) //trim at end
+  {
+    temp.erase(temp.length()-1,1);
+  }
+
+  char *c = new char[temp.length()];
+  strcpy(c, temp.c_str());
+
+  return c;
+}
+
 // split character array using delimiter
 vector<char *> split(string str, char delimiter)
 {
@@ -58,6 +77,8 @@ void execCommand(vector<char *> command, char ** data, int type)
   {
     if (type == 1) //output redirection
     {
+      command[1] = trimWhiteSpace(command[1]);
+
       int fileDesc = open(command.data()[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
       dup2(fileDesc,STDOUT_FILENO);
       close(fileDesc);
@@ -85,6 +106,8 @@ void execCommand(vector<char *> command, char ** data, int type)
     }
     else if (type == 2)
     {
+      command[1] = trimWhiteSpace(command[1]);
+
       int fileDesc = open(command.data()[1], O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
       dup2(fileDesc,STDIN_FILENO);
       close(fileDesc);
@@ -113,7 +136,7 @@ void execCommand(vector<char *> command, char ** data, int type)
     {
       int fd[2];
       char *secondCommand[2];
-      secondCommand[0] = command[1];
+      secondCommand[0] = trimWhiteSpace(command[1]);
       data[1] = NULL;
       
       if(pipe(fd) == -1)
