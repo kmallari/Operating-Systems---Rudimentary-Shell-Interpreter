@@ -56,7 +56,7 @@ void execCommand(vector<char *> command, char ** data, int type)
 
   if(pid == 0)
   {
-    if (type == 1) //currently only for output redirection
+    if (type == 1) //output redirection
     {
       int fileDesc = open(command.data()[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
       dup2(fileDesc,STDOUT_FILENO);
