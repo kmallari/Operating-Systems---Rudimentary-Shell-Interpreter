@@ -45,7 +45,7 @@ vector<char *> split(string str, char delimiter)
   return chars;
 }
 
-void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, int redirect)
+void execCommand(vector<char *> command, char ** data, int redirect)
 {
   pid_t pid = fork();
   pid_t pidPipe;
@@ -58,7 +58,7 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
   {
     if (redirect == 1) //currently only for output redirection
     {
-      int fileDesc = open(fileNMs.data()[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
+      int fileDesc = open(command.data()[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
       dup2(fileDesc,STDOUT_FILENO);
       close(fileDesc);
       data[1] = NULL;
@@ -85,7 +85,7 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
     }
     else if (redirect == 2)
     {
-      int fileDesc = open(fileNMs.data()[1], O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
+      int fileDesc = open(command.data()[1], O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
       dup2(fileDesc,STDIN_FILENO);
       close(fileDesc);
       data[1] = NULL;
@@ -207,23 +207,23 @@ void checkInput(string currentCommand)
   if(redirin!=string::npos)
   {
     redirectInCommand = split(currentCommand, '<');
-    execCommand(redirectInCommand, redirectInCommand.data(), redirectInCommand, 2);
+    execCommand(redirectInCommand, redirectInCommand.data(), 2);
   }
   else if (redirout!=string::npos)
   {
     redirectOutCommand = split(currentCommand, '>');
-    execCommand(redirectOutCommand, redirectOutCommand.data(), redirectOutCommand, 1);
+    execCommand(redirectOutCommand, redirectOutCommand.data(), 1);
   }
 
   if(pipe!=string::npos)
   {
     pipeCommand = split(currentCommand, '|');
-    execCommand(pipeCommand, pipeCommand.data(), nullVec, 3);
+    execCommand(pipeCommand, pipeCommand.data(), 3);
   }
   else if (redirin==string::npos && redirout==string::npos)
   {
     command = split(currentCommand, ' ');
-    execCommand(command, command.data(), nullVec, false);
+    execCommand(command, command.data(), false);
   }
 } 
 
