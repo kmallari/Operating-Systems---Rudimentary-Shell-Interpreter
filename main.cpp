@@ -45,7 +45,7 @@ vector<char *> split(string str, char delimiter)
   return chars;
 }
 
-void execCommand(vector<char *> command, char ** data, int redirect)
+void execCommand(vector<char *> command, char ** data, int type)
 {
   pid_t pid = fork();
   pid_t pidPipe;
@@ -56,7 +56,7 @@ void execCommand(vector<char *> command, char ** data, int redirect)
 
   if(pid == 0)
   {
-    if (redirect == 1) //currently only for output redirection
+    if (type == 1) //currently only for output redirection
     {
       int fileDesc = open(command.data()[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
       dup2(fileDesc,STDOUT_FILENO);
@@ -83,7 +83,7 @@ void execCommand(vector<char *> command, char ** data, int redirect)
         }
       }
     }
-    else if (redirect == 2)
+    else if (type == 2)
     {
       int fileDesc = open(command.data()[1], O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
       dup2(fileDesc,STDIN_FILENO);
@@ -109,7 +109,7 @@ void execCommand(vector<char *> command, char ** data, int redirect)
         }
       }
     }
-    else if (redirect == 3)
+    else if (type == 3)
     {
       int fd[2];
       char *secondCommand[2];
