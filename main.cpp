@@ -50,12 +50,9 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
   pid_t pid = fork();
   pid_t pidPipe;
 
-/*   char *c = new char[command.length() + 1];
-  strcat(c, " /bin/");
-  strcat(c, command.c_str());
-  command.data()[0] = c.data(); */
   size_t spc = charToString(command[0]).find(' ');
   size_t dash = charToString(command[1]).find('-');
+  size_t period = charToString(command[1]).find('.');
 
   if(pid == 0)
   {
@@ -180,14 +177,14 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
     }
     else
     {
-      if (dash==string::npos)
+      if (dash==string::npos && period==string::npos)
       {
         data[1] = NULL;
       }
 
       if(execvp(command[0], data) == -1)
       {
-        cout << "SOMETHING WENT WRONG ";
+        cout << "SOMETHING WENT WRONG " <<endl;
         exit(10);
       }
     }
@@ -200,36 +197,32 @@ void execCommand(vector<char *> command, char ** data, vector<char *> fileNMs, i
   }
 }
 
-// void checkInput(string currentCommand, vector<char *> &previousCommand, vector<char *> &previousFNMs)
 void checkInput(string currentCommand)
 {
   size_t redirin = currentCommand.find('<');
   size_t redirout = currentCommand.find('>');
   size_t pipe = currentCommand.find('|');
-  vector<char *> nullVec, redirectInCommand, redirectOutCommand;
+  vector<char *> nullVec, redirectInCommand, redirectOutCommand, command, pipeCommand;
 
   if(redirin!=string::npos)
   {
-    vector<char *> redirectInCommand = split(currentCommand, '<');
-    cout << redirectInCommand.data()[1] <<endl;
+    redirectInCommand = split(currentCommand, '<');
     execCommand(redirectInCommand, redirectInCommand.data(), redirectInCommand, 2);
   }
   else if (redirout!=string::npos)
   {
-    vector<char *> redirectOutCommand = split(currentCommand, '>');
-    cout << redirectOutCommand.data()[1] <<endl;
+    redirectOutCommand = split(currentCommand, '>');
     execCommand(redirectOutCommand, redirectOutCommand.data(), redirectOutCommand, 1);
   }
 
   if(pipe!=string::npos)
   {
-    vector<char *> pipeCommand = split(currentCommand, '|');
-    cout << pipeCommand.data()[0] << " AND " << pipeCommand.data()[1] <<endl;
+    pipeCommand = split(currentCommand, '|');
     execCommand(pipeCommand, pipeCommand.data(), nullVec, 3);
   }
   else if (redirin==string::npos && redirout==string::npos)
   {
-    vector<char *> command = split(currentCommand, ' ');
+    command = split(currentCommand, ' ');
     execCommand(command, command.data(), nullVec, false);
   }
 } 
@@ -237,7 +230,6 @@ void checkInput(string currentCommand)
 int main()
 {
   string input;
-  //vector<char *> args;
   vector<char *> prevArgs, prevFNMs;
   bool should_run = 1; //determine when to exit program
 
@@ -252,8 +244,6 @@ int main()
       return 0;
     }
 
-    // checkInput(input, prevArgs, prevFNMs);
-    cout << "Input: " << input <<endl;
     checkInput(input);
   }
 }
