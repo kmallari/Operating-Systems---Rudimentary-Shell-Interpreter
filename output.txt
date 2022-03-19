@@ -1,0 +1,5 @@
+total 152
+-rwxr-xr-x 1 Username None   8110 Mar 19 22:27 main.cpp
+-rwxr-xr-x 1 Username None 142828 Mar 19 22:27 main.exe
+-rw------- 1 Username None      0 Mar 19 22:27 output.txt
+-rwxr-xr-x 1 Username None   2196 Mar 19 22:25 README.md
