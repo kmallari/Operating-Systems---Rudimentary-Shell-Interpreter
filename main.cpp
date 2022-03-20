@@ -1,3 +1,10 @@
+//Project 1 Rudimentary Shell Interpreter
+//ENGG 126 A
+//Coded by:
+//Felipe Gan
+//Kevin Mallari
+//Luke Lao
+
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -256,19 +263,22 @@ void checkInput(string command)
   size_t redirout = command.find('>');
   size_t pipe = command.find('|');
 
+  //redirection in
   if (redirin != string::npos)
   {
     execCommand(command, 2);
   }
-  if (redirout!=string::npos)
+  //redirection out
+  else if (redirout != string::npos)
   {
     execCommand(command, 1);
   }
-
+  //pipe
   if (pipe != string::npos)
   {
     execCommand(command, 3);
   }
+  //regular command
   else if (redirin == string::npos && redirout == string::npos)
   {
     execCommand(command, 0);
