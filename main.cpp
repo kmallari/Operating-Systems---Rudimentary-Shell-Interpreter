@@ -12,13 +12,14 @@
 #include <iostream>
 
 // ADDITIONAL LIBRARIES NEEDED
-#include <fcntl.h>
-#include <sstream>
+
+#include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 #include <string>
-#include <sys/stat.h>
 #include <vector>
+#include <fcntl.h>
 using namespace std;
 
 string charToString(char *chars)
@@ -50,11 +51,10 @@ char *trimWhiteSpace(char *chars)
 vector<char *> split(string str, char delimiter)
 {
   vector<string> internal;
-  stringstream ss(str); // Turn the string into a stream.
+  stringstream ss(str);  // Turn the string into a stream.
   string tok;
 
-  while (getline(ss, tok, delimiter))
-  {
+  while (getline(ss, tok, delimiter)) {
     internal.push_back(tok);
   }
 
@@ -78,7 +78,7 @@ void execCommand(string command, int type)
 
   vector<char *> redirectCommand, regularCommand;
 
-  if (pid == 0)
+  if(pid == 0)
   {
     if (type == 1 || type == 2) // redirection
     {
@@ -148,6 +148,7 @@ void execCommand(string command, int type)
         }
       }
     }
+
     else if (type == 3)
     {
       int fd[2];
@@ -244,8 +245,6 @@ void execCommand(string command, int type)
         exit(10);
       }
     }
-
-    // kill(pid, SIGKILL);
   }
   else if (pid < 0)
   {
@@ -284,15 +283,15 @@ void checkInput(string command)
   {
     execCommand(command, 0);
   }
-}
+} 
 
 int main()
 {
   string input;
   vector<char *> prevArgs, prevFNMs;
-  bool should_run = 1; // determine when to exit program
+  bool should_run = 1; //determine when to exit program
 
-  while (should_run)
+  while(should_run)
   {
     cout << "~\033[1;31mFelipe\033[0m\033[1;32mLuke\033[0m\033[1;"
             "33mKevin\033[0m\n$ ";
@@ -302,7 +301,8 @@ int main()
     {
       return 0;
     }
-
+    
     checkInput(input);
+    input.clear();
   }
 }
