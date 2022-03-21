@@ -28,19 +28,6 @@ string charToString(char *chars)
   return s;
 }
 
-<<<<<<< HEAD
-char * trimWhiteSpace(char *chars)
-{
-  string temp = charToString(chars);
-  while (temp.find(' ') == 0)
-  {
-    temp.erase(0,1);
-  }
-
-  while (temp.find(' ') == temp.length()-1) //trim at end
-  {
-    temp.erase(temp.length()-1,1);
-=======
 char *trimWhiteSpace(char *chars)
 {
   string temp = charToString(chars);
@@ -52,7 +39,6 @@ char *trimWhiteSpace(char *chars)
   while (temp.find(' ') == temp.length() - 1) // trim at end
   {
     temp.erase(temp.length() - 1, 1);
->>>>>>> kevs
   }
 
   char *c = new char[temp.length()];
@@ -85,41 +71,11 @@ vector<char *> split(string str, char delimiter)
   return chars;
 }
 
-<<<<<<< HEAD
-void execCommand(vector<char *> command, char ** data, int type)
-=======
 void execCommand(string command, int type)
->>>>>>> kevs
 {
   pid_t pid = fork();
   pid_t pidPipe;
 
-<<<<<<< HEAD
-  size_t spc = charToString(command[0]).find(' ');
-  size_t dash = charToString(command[1]).find('-');
-  size_t period = charToString(command[1]).find('.');
-
-  if(pid == 0)
-  {
-    if (type == 1) //output redirection
-    {
-      command[1] = trimWhiteSpace(command[1]);
-
-      int fileDesc = open(command.data()[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
-      dup2(fileDesc,STDOUT_FILENO);
-      close(fileDesc);
-      data[1] = NULL;
-      
-      if (spc!=string::npos)
-      {
-        vector<char *> commandInput = split(charToString(command[0]), ' ');
-        if(execvp(commandInput.data()[0], commandInput.data()) == -1)
-        {
-          cout << "SOMETHING WENT WRONG ";
-          cout << "REDIRECT ERROR"<<endl;
-          exit(10);
-        }
-=======
   vector<char *> redirectCommand, regularCommand;
 
   if(pid == 0)
@@ -141,29 +97,9 @@ void execCommand(string command, int type)
         dup2(fileDesc,
              STDOUT_FILENO); // dup2 file descriptor for output
         close(fileDesc);
->>>>>>> kevs
       }
       else if (type == 2) // input redirection
       {
-<<<<<<< HEAD
-        if(execvp(command[0], data) == -1)
-        {
-          cout << "SOMETHING WENT WRONG ";
-          cout << "REDIRECT ERROR"<<endl;
-          exit(10);
-        }
-      }
-    }
-    else if (type == 2)
-    {
-      command[1] = trimWhiteSpace(command[1]);
-
-      int fileDesc = open(command.data()[1], O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR); //https://man7.org/linux/man-pages/man2/open.2.html
-      dup2(fileDesc,STDIN_FILENO);
-      close(fileDesc);
-      data[1] = NULL;
-      if (spc!=string::npos)
-=======
         redirectCommand =
             split(command, '<'); // split command with input delimiter
         redirectCommand[0] =
@@ -188,7 +124,6 @@ void execCommand(string command, int type)
                                    // within first command
       if (spc != string::npos)     // execute if space is detected in
                                    // first argument
->>>>>>> kevs
       {
         vector<char *> commandInput = split(
             charToString(redirectCommand[0]),
@@ -196,14 +131,9 @@ void execCommand(string command, int type)
         if (execvp(commandInput.data()[0], commandInput.data()) ==
             -1) // execute command
         {
-<<<<<<< HEAD
-          cout << "SOMETHING WENT WRONG ";
-          cout << "REDIRECT ERROR"<<endl;
-=======
           cout << "SOMETHING WENT WRONG "; // error display
           cout << "REDIRECT ERROR"
                << endl; // additional information for debugging
->>>>>>> kevs
           exit(10);
         }
       }
@@ -213,32 +143,15 @@ void execCommand(string command, int type)
                    redirectCommand.data()) == -1) // execute command
         {
           cout << "SOMETHING WENT WRONG ";
-<<<<<<< HEAD
-          cout << "REDIRECT ERROR"<<endl;
-=======
           cout << "REDIRECT ERROR" << endl;
->>>>>>> kevs
           exit(10);
         }
       }
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> kevs
     else if (type == 3)
     {
       int fd[2];
       char *secondCommand[2];
-<<<<<<< HEAD
-      secondCommand[0] = trimWhiteSpace(command[1]);
-      data[1] = NULL;
-      
-      if(pipe(fd) == -1)
-      {
-        cout << "SOMETHING WENT WRONG ";
-        cout << "PIPE ERROR"<<endl;
-=======
 
       regularCommand =
           split(command, '|'); // split command with pipe delimiter
@@ -257,26 +170,16 @@ void execCommand(string command, int type)
         cout << "SOMETHING WENT WRONG "; // error display
         cout << "PIPE ERROR"
              << endl; // additional information for debugging
->>>>>>> kevs
         exit(10);
       }
 
-      pidPipe = fork(); // forks to execute input pipe within child
+      pidPipe = fork(); // forks to execute output pipe within child
 
-      if (pidPipe > 0) // output pipe or parent pipe
+      if (pidPipe == 0) // output pipe or child pipe
       {
-        wait(NULL); // wait for input pipe/child
         close(fd[1]);
         dup2(fd[0], STDIN_FILENO); // communicate through pipe, READ
         close(fd[0]);
-<<<<<<< HEAD
-        if (dash!=string::npos)
-        {
-          vector<char *> commandInput = split(charToString(secondCommand[0]), ' ');
-          if(execvp(commandInput.data()[0], commandInput.data()) == -1)
-          {
-            cout << "SOMETHING WENT WRONG OUTPUT PIPE" <<endl;
-=======
         if (spc2 != string::npos)
         {
           vector<char *> commandInput =
@@ -285,7 +188,6 @@ void execCommand(string command, int type)
               -1)
           {
             cout << "SOMETHING WENT WRONG OUTPUT PIPE" << endl;
->>>>>>> kevs
             exit(10);
           }
         }
@@ -294,16 +196,12 @@ void execCommand(string command, int type)
           secondCommand[1] = NULL;
           if (execvp(secondCommand[0], secondCommand) == -1)
           {
-<<<<<<< HEAD
-            cout << "SOMETHING WENT WRONG OUTPUT PIPE" <<endl;
-=======
             cout << "SOMETHING WENT WRONG OUTPUT PIPE" << endl;
->>>>>>> kevs
             exit(10);
           }
         }
       }
-      else if (pidPipe == 0)
+      else if (pidPipe > 0) // parent pipe
       {
         close(fd[0]);
         dup2(fd[1], STDOUT_FILENO); // communicate through pipe, WRITE
@@ -315,11 +213,7 @@ void execCommand(string command, int type)
           if (execvp(commandInput.data()[0], commandInput.data()) ==
               -1)
           {
-<<<<<<< HEAD
-            cout << "SOMETHING WENT WRONG INPUT PIPE" <<endl;
-=======
             cout << "SOMETHING WENT WRONG INPUT PIPE" << endl;
->>>>>>> kevs
             exit(10);
           }
         }
@@ -328,14 +222,11 @@ void execCommand(string command, int type)
           if (execvp(regularCommand.data()[0],
                      regularCommand.data()) == -1)
           {
-<<<<<<< HEAD
-            cout << "SOMETHING WENT WRONG INPUT PIPE" <<endl;
-=======
             cout << "SOMETHING WENT WRONG INPUT PIPE" << endl;
->>>>>>> kevs
             exit(10);
           }
         }
+        //wait(NULL);
         exit(10);
       }
       close(fd[0]);
@@ -343,16 +234,6 @@ void execCommand(string command, int type)
     }
     else
     {
-<<<<<<< HEAD
-      if (dash==string::npos && period==string::npos)
-      {
-        data[1] = NULL;
-      }
-
-      if(execvp(command[0], data) == -1)
-      {
-        cout << "SOMETHING WENT WRONG " <<endl;
-=======
       regularCommand =
           split(command, ' '); // split command with space delimiter
 
@@ -360,7 +241,6 @@ void execCommand(string command, int type)
           -1) // execute command
       {
         cout << "SOMETHING WENT WRONG " << endl;
->>>>>>> kevs
         exit(10);
       }
     }
@@ -376,35 +256,6 @@ void execCommand(string command, int type)
   }
 }
 
-<<<<<<< HEAD
-void checkInput(string currentCommand)
-{
-  size_t redirin = currentCommand.find('<');
-  size_t redirout = currentCommand.find('>');
-  size_t pipe = currentCommand.find('|');
-  vector<char *> nullVec, redirectInCommand, redirectOutCommand, command, pipeCommand;
-
-  if(redirin!=string::npos)
-  {
-    redirectInCommand = split(currentCommand, '<');
-    execCommand(redirectInCommand, redirectInCommand.data(), 2);
-  }
-  else if (redirout!=string::npos)
-  {
-    redirectOutCommand = split(currentCommand, '>');
-    execCommand(redirectOutCommand, redirectOutCommand.data(), 1);
-  }
-
-  if(pipe!=string::npos)
-  {
-    pipeCommand = split(currentCommand, '|');
-    execCommand(pipeCommand, pipeCommand.data(), 3);
-  }
-  else if (redirin==string::npos && redirout==string::npos)
-  {
-    command = split(currentCommand, ' ');
-    execCommand(command, command.data(), false);
-=======
 void checkInput(string command)
 {
   size_t redirin = command.find('<');
@@ -430,7 +281,6 @@ void checkInput(string command)
   else if (redirin == string::npos && redirout == string::npos)
   {
     execCommand(command, 0);
->>>>>>> kevs
   }
 } 
 
@@ -450,11 +300,7 @@ int main()
     {
       return 0;
     }
-<<<<<<< HEAD
-
-=======
     
->>>>>>> kevs
     checkInput(input);
   }
 }
